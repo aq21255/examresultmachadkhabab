@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Exam Results</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+            color: #ecf0f1;
+            font-size: 24px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 12px;
+            display: block;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: #34495e;
+        }
+
+        .sidebar-menu a.logout {
+            background: #e74c3c;
+            margin-top: 20px;
+        }
+
+        .sidebar-menu a.logout:hover {
+            background: #c0392b;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .subjects-section {
+            border: 2px dashed #e0e0e0;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .subject-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .subject-item input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #634085;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-add {
+            background: #27ae60;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-remove {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 12px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .students-table th, .students-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .students-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .students-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .qr-code-preview {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .qr-code-preview img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+
+            .sidebar h2 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .sidebar-menu li {
+                margin-bottom: 0;
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header-bar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .header-bar h1 {
+                font-size: clamp(1.2em, 4vw, 1.5em);
+            }
+
+            .panel {
+                padding: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .students-table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+            }
+
+            .students-table th,
+            .students-table td {
+                padding: 8px 6px;
+                white-space: nowrap;
+            }
+
+            .subject-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar-menu li {
+                min-width: 100%;
+            }
+
+            .panel {
+                padding: 12px;
+            }
+
+            .form-group input,
+            .form-group select {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .students-table {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    {% raw %}
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function AdminDashboard() {
+            const [activeTab, setActiveTab] = useState('add');
+            const [students, setStudents] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [alert, setAlert] = useState(null);
+
+            // Form state
+            const [formData, setFormData] = useState({
+                student_name: '',
+                id_number: '',
+                exam_number: '',
+                exam_type: 'Both',
+                photo_file: null,
+                photo_preview: null,
+                exam_date: new Date().toISOString().split('T')[0],
+                subjects: [{ name: '', mark: '' }]
+            });
+
+            useEffect(() => {
+                if (activeTab === 'view') {
+                    loadStudents();
+                }
+            }, [activeTab]);
+
+            const loadStudents = async () => {
+                try {
+                    setLoading(true);
+                    const response = await fetch('/api/students');
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStudents(data);
+                    } else if (response.status === 401) {
+                        window.location.href = '/admin/login';
+                    }
+                } catch (error) {
+                    setAlert({ type: 'error', message: 'Error loading students' });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleInputChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({ ...prev, [name]: value }));
+            };
+
+            const addSubject = () => {
+                setFormData(prev => ({
+                    ...prev,
+                    subjects: [...prev.subjects, { name: '', mark: '' }]
+                }));
+            };
+
+            const removeSubject = (index) => {
+                setFormData(prev => ({
+                    ...prev,
+                    subjects: prev.subjects.filter((_, i) => i !== index)
+                }));
+            };
+
+            const updateSubject = (index, field, value) => {
+                setFormData(prev => ({
+                    ...prev,
+                    subjects: prev.subjects.map((subj, i) => 
+                        i === index ? { ...subj, [field]: value } : subj
+                    )
+                }));
+            };
+
+            const calculateTotal = () => {
+                return formData.subjects.reduce((sum, subj) => {
+                    return sum + (parseFloat(subj.mark) || 0);
+                }, 0);
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                
+                if (!formData.student_name || !formData.id_number) {
+                    setAlert({ type: 'error', message: 'Name and ID are required' });
+                    return;
+                }
+
+                if (formData.subjects.length === 0 || formData.subjects.some(s => !s.name || !s.mark)) {
+                    setAlert({ type: 'error', message: 'All subjects must have name and mark' });
+                    return;
+                }
+
+                try {
+                    setLoading(true);
+                    
+                    // Create FormData for file upload
+                    const formDataToSend = new FormData();
+                    formDataToSend.append('student_name', formData.student_name);
+                    formDataToSend.append('id_number', formData.id_number);
+                    formDataToSend.append('exam_number', formData.exam_number);
+                    formDataToSend.append('exam_type', formData.exam_type);
+                    formDataToSend.append('exam_date', formData.exam_date);
+                    formDataToSend.append('subjects', JSON.stringify(formData.subjects.map(s => ({
+                        name: s.name,
+                        mark: parseFloat(s.mark) || 0
+                    }))));
+                    
+                    if (formData.photo_file) {
+                        formDataToSend.append('photo', formData.photo_file);
+                    }
+
+                    const response = await fetch('/api/students/add', {
+                        method: 'POST',
+                        body: formDataToSend
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setAlert({ type: 'success', message: 'Student added successfully!' });
+                        setFormData({
+                            student_name: '',
+                            id_number: '',
+                            exam_number: '',
+                            exam_type: 'Both',
+                            photo_file: null,
+                            photo_preview: null,
+                            exam_date: new Date().toISOString().split('T')[0],
+                            subjects: [{ name: '', mark: '' }]
+                        });
+                        // Reset file input
+                        const fileInput = document.querySelector('input[type="file"]');
+                        if (fileInput) fileInput.value = '';
+                        loadStudents();
+                    } else {
+                        setAlert({ type: 'error', message: data.error || 'Error adding student' });
+                    }
+                } catch (error) {
+                    setAlert({ type: 'error', message: 'Error: ' + error.message });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleDelete = async (id) => {
+                if (!confirm('Ma hubtaa inaad tirtirto ardaygan?')) return;
+
+                try {
+                    const response = await fetch(`/api/students/${id}`, { method: 'DELETE' });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        setAlert({ type: 'success', message: 'Student deleted successfully' });
+                        loadStudents();
+                    } else {
+                        setAlert({ type: 'error', message: data.error });
+                    }
+                } catch (error) {
+                    setAlert({ type: 'error', message: 'Error deleting student' });
+                }
+            };
+
+            const handleExport = async () => {
+                try {
+                    const response = await fetch('/api/students/export');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `students_export_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } catch (error) {
+                    setAlert({ type: 'error', message: 'Error exporting data' });
+                }
+            };
+
+            const generateQRUrl = (examNumber) => {
+                return `${window.location.origin}/?exam=${examNumber}`;
+            };
+
+            return (
+                <div className="admin-container">
+                    <div className="sidebar">
+                        <h2>📊 Admin Panel</h2>
+                        <ul className="sidebar-menu">
+                            <li>
+                                <a 
+                                    href="#"
+                                    className={activeTab === 'add' ? 'active' : ''}
+                                    onClick={(e) => { e.preventDefault(); setActiveTab('add'); }}
+                                >
+                                    ➕ Add Student
+                                </a>
+                            </li>
+                            <li>
+                                <a 
+                                    href="#"
+                                    className={activeTab === 'view' ? 'active' : ''}
+                                    onClick={(e) => { e.preventDefault(); setActiveTab('view'); }}
+                                >
+                                    📋 View Students
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/admin/logout" className="logout">
+                                    🚪 Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="main-content">
+                        <div className="header-bar">
+                            <h1>Exam Results Management System</h1>
+                            {activeTab === 'view' && (
+                                <button className="btn btn-success" onClick={handleExport}>
+                                    📥 Export CSV
+                                </button>
+                            )}
+                        </div>
+
+                        {alert && (
+                            <div className={`alert alert-${alert.type}`}>
+                                {alert.message}
+                            </div>
+                        )}
+
+                        {activeTab === 'add' ? (
+                            <div className="panel">
+                                <h2>➕ Add New Student</h2>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Full Name *</label>
+                                            <input
+                                                type="text"
+                                                name="student_name"
+                                                value={formData.student_name}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>ID Number *</label>
+                                            <input
+                                                type="text"
+                                                name="id_number"
+                                                value={formData.id_number}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Exam Number (Auto if empty)</label>
+                                            <input
+                                                type="text"
+                                                name="exam_number"
+                                                value={formData.exam_number}
+                                                onChange={handleInputChange}
+                                                placeholder="Auto-generated"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Exam Type *</label>
+                                            <select
+                                                name="exam_type"
+                                                value={formData.exam_type}
+                                                onChange={handleInputChange}
+                                                required
+                                            >
+                                                <option value="Midterm">Midterm</option>
+                                                <option value="Final">Final</option>
+                                                <option value="Both">Both</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Photo Upload</label>
+                                            <input
+                                                type="file"
+                                                name="photo_file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) {
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            photo_file: file,
+                                                            photo_preview: URL.createObjectURL(file)
+                                                        }));
+                                                    }
+                                                }}
+                                            />
+                                            {formData.photo_preview && (
+                                                <img 
+                                                    src={formData.photo_preview} 
+                                                    alt="Preview" 
+                                                    style={{ marginTop: '10px', width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px', border: '2px solid #667eea' }}
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Exam Date</label>
+                                            <input
+                                                type="date"
+                                                name="exam_date"
+                                                value={formData.exam_date}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Subjects and Marks *</label>
+                                        <div className="subjects-section">
+                                            {formData.subjects.map((subject, index) => (
+                                                <div key={index} className="subject-item">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Subject Name"
+                                                        value={subject.name}
+                                                        onChange={(e) => updateSubject(index, 'name', e.target.value)}
+                                                        required
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Mark"
+                                                        min="0"
+                                                        max="100"
+                                                        step="0.01"
+                                                        value={subject.mark}
+                                                        onChange={(e) => updateSubject(index, 'mark', e.target.value)}
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-remove"
+                                                        onClick={() => removeSubject(index)}
+                                                        disabled={formData.subjects.length === 1}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                className="btn btn-add"
+                                                onClick={addSubject}
+                                            >
+                                                + Add Subject
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginTop: '20px', padding: '15px', background: '#f8f9fa', borderRadius: '5px' }}>
+                                        <strong>Total Marks: {calculateTotal().toFixed(2)}</strong>
+                                    </div>
+
+                                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                                        {loading ? 'Saving...' : '💾 Save Student Record'}
+                                    </button>
+                                </form>
+                            </div>
+                        ) : (
+                            <div className="panel">
+                                <h2>📋 All Students ({students.length})</h2>
+                                {loading ? (
+                                    <p>Loading...</p>
+                                ) : students.length === 0 ? (
+                                    <p>No students found. Add your first student!</p>
+                                ) : (
+                                    <table className="students-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Photo</th>
+                                                <th>Name</th>
+                                                <th>ID</th>
+                                                <th>Exam Number</th>
+                                                <th>Exam Type</th>
+                                                <th>Subjects</th>
+                                                <th>Total</th>
+                                                <th>Grade</th>
+                                                <th>QR Code</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {students.map(student => (
+                                                <tr key={student.id}>
+                                                    <td>
+                                                        <img 
+                                                            src={student.photo_url} 
+                                                            alt={student.student_name}
+                                                            style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
+                                                            onError={(e) => e.target.src = 'https://via.placeholder.com/50?text=Student'}
+                                                        />
+                                                    </td>
+                                                    <td>{student.student_name}</td>
+                                                    <td>{student.id_number}</td>
+                                                    <td><strong>{student.exam_number}</strong></td>
+                                                    <td>{student.exam_type}</td>
+                                                    <td>
+                                                        {student.subjects.map(s => `${s.name}: ${s.mark}`).join(', ')}
+                                                    </td>
+                                                    <td>{student.total_marks.toFixed(1)}</td>
+                                                    <td><span className={`grade-badge grade-${student.grade}`}>{student.grade}</span></td>
+                                                    <td>
+                                                        <div className="qr-code-preview">
+                                                            <img 
+                                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(generateQRUrl(student.exam_number))}`}
+                                                                alt="QR Code"
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={() => handleDelete(student.id)}
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<AdminDashboard />, document.getElementById('root'));
+    </script>
+    {% endraw %}
+</body>
+</html>
+

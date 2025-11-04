@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natiijada Ardayda - Exam Results</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .mode-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .panel {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .file-input {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .file-input:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .file-input input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+        }
+
+        .btn-secondary:hover {
+            background: #634085;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .search-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .info-text {
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .student-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .student-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            border: 4px solid #667eea;
+        }
+
+        .student-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .student-info {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .grade-A { background: #4caf50; color: white; }
+        .grade-B { background: #2196f3; color: white; }
+        .grade-C { background: #ff9800; color: white; }
+        .grade-D { background: #ff5722; color: white; }
+        .grade-F { background: #f44336; color: white; }
+
+        .qr-code {
+            width: 160px;
+            height: 160px;
+            margin: 15px auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 5px;
+            background: white;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .result-display {
+            text-align: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .result-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            border: 5px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .score-selector {
+            margin: 20px 0;
+        }
+
+        .score-selector select {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #ef5350;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .students-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mode-switcher {
+                flex-direction: column;
+            }
+            
+            .panel {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [mode, setMode] = useState('student');
+            const [students, setStudents] = useState([]);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [selectedStudent, setSelectedStudent] = useState(null);
+            const [scoreType, setScoreType] = useState('combined');
+            const [alert, setAlert] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            // Load students from API
+            const loadStudents = async () => {
+                try {
+                    setLoading(true);
+                    const response = await fetch('/api/students');
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStudents(data);
+                    }
+                } catch (error) {
+                    console.error('Error loading students:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            // Load students on mount and when switching to admin mode
+            useEffect(() => {
+                if (mode === 'admin') {
+                    loadStudents();
+                }
+            }, [mode]);
+
+            // Handle QR code from URL parameter
+            useEffect(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const qrData = urlParams.get('qr');
+                if (qrData) {
+                    setMode('student');
+                    setSearchQuery(qrData);
+                    handleSearch(qrData);
+                }
+            }, []);
+
+            const handleCSVUpload = async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    setLoading(true);
+                    const response = await fetch('/api/students/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        setAlert({ 
+                            type: 'success', 
+                            message: `${data.message} - Added: ${data.added}, Updated: ${data.updated}` 
+                        });
+                        loadStudents();
+                    } else {
+                        setAlert({ type: 'error', message: data.error || 'Error uploading file' });
+                    }
+                } catch (error) {
+                    setAlert({ type: 'error', message: 'Error uploading file: ' + error.message });
+                } finally {
+                    setLoading(false);
+                    event.target.value = ''; // Reset file input
+                }
+            };
+
+            const downloadCSVTemplate = async () => {
+                try {
+                    const response = await fetch('/api/students/template');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'student_results_template.csv';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } catch (error) {
+                    setAlert({ type: 'error', message: 'Error downloading template' });
+                }
+            };
+
+            const handleSearch = async (queryValue = null) => {
+                const query = (queryValue || searchQuery).trim();
+                if (!query) {
+                    setAlert({ type: 'error', message: 'Fadlan geli ID number ama exam number' });
+                    return;
+                }
+
+                try {
+                    setLoading(true);
+                    const response = await fetch('/api/students/search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success && data.student) {
+                        setSelectedStudent(data.student);
+                        setAlert(null);
+                    } else {
+                        setSelectedStudent(null);
+                        setAlert({ type: 'error', message: 'Ardaygu lama helin. Fadlan hubi ID number-ka ama exam number-ka' });
+                    }
+                } catch (error) {
+                    setAlert({ type: 'error', message: 'Error searching student: ' + error.message });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const calculateGrade = (score) => {
+                if (score >= 90) return 'A';
+                if (score >= 80) return 'B';
+                if (score >= 70) return 'C';
+                if (score >= 60) return 'D';
+                return 'F';
+            };
+
+            const getQRCodeURL = (student, type = 'exam') => {
+                const data = type === 'exam' ? student.exam_number : student.id_number;
+                const currentUrl = window.location.origin + window.location.pathname;
+                const qrDataUrl = `${currentUrl}?qr=${encodeURIComponent(data)}`;
+                return `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(qrDataUrl)}`;
+            };
+
+            const getCurrentScore = (student) => {
+                switch(scoreType) {
+                    case 'midterm':
+                        return { label: 'Midterm (Nisfi)', score: student.midterm_score, grade: calculateGrade(student.midterm_score) };
+                    case 'final':
+                        return { label: 'Final (Nihayo)', score: student.final_score, grade: calculateGrade(student.final_score) };
+                    default:
+                        return { label: 'Combined (Isku-jir)', score: parseFloat(student.combined_score), grade: student.grade };
+                }
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🎓 Natiijada Ardayda - Exam Results</h1>
+                        <div className="mode-switcher">
+                            <button 
+                                className={`mode-btn ${mode === 'student' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setMode('student');
+                                    setSelectedStudent(null);
+                                    setSearchQuery('');
+                                    setAlert(null);
+                                }}
+                            >
+                                🎓 Student Page
+                            </button>
+                            <button 
+                                className={`mode-btn ${mode === 'admin' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setMode('admin');
+                                    setSelectedStudent(null);
+                                    setSearchQuery('');
+                                    setAlert(null);
+                                }}
+                            >
+                                👨‍💼 Admin Panel
+                            </button>
+                        </div>
+                    </div>
+
+                    {alert && (
+                        <div className={`alert alert-${alert.type}`}>
+                            {alert.message}
+                        </div>
+                    )}
+
+                    {loading && (
+                        <div className="loading">
+                            <p>Loading...</p>
+                        </div>
+                    )}
+
+                    {mode === 'admin' ? (
+                        <AdminPanel 
+                            students={students}
+                            onCSVUpload={handleCSVUpload}
+                            onDownloadTemplate={downloadCSVTemplate}
+                            getQRCodeURL={getQRCodeURL}
+                            loading={loading}
+                        />
+                    ) : (
+                        <StudentPage 
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            onSearch={() => handleSearch()}
+                            selectedStudent={selectedStudent}
+                            scoreType={scoreType}
+                            setScoreType={setScoreType}
+                            getCurrentScore={getCurrentScore}
+                            getQRCodeURL={getQRCodeURL}
+                            loading={loading}
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        function AdminPanel({ students, onCSVUpload, onDownloadTemplate, getQRCodeURL, loading }) {
+            return (
+                <div className="panel">
+                    <div className="upload-section">
+                        <h2>📤 Upload Student Results (CSV)</h2>
+                        <div className="file-input-wrapper">
+                            <button className="file-input" disabled={loading}>
+                                Choose CSV File
+                                <input 
+                                    type="file" 
+                                    accept=".csv" 
+                                    onChange={onCSVUpload}
+                                    disabled={loading}
+                                />
+                            </button>
+                        </div>
+                        <button className="btn btn-secondary" onClick={onDownloadTemplate} disabled={loading}>
+                            📥 Download CSV Template
+                        </button>
+                    </div>
+
+                    <div>
+                        <h2>📋 Liiska Ardayda ({students.length})</h2>
+                        {students.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-state-icon">📭</div>
+                                <p>Ma jiraan arday. Fadlan upload garsoo CSV file-ka ardayda.</p>
+                            </div>
+                        ) : (
+                            <div className="students-grid">
+                                {students.map((student) => (
+                                    <div key={student.id} className="student-card">
+                                        <img 
+                                            src={student.photo_url} 
+                                            alt={student.student_name}
+                                            className="student-photo"
+                                            onError={(e) => {
+                                                e.target.src = 'https://via.placeholder.com/150?text=Student';
+                                            }}
+                                        />
+                                        <div className="student-name">{student.student_name}</div>
+                                        <div className="student-info">ID: {student.id_number}</div>
+                                        <div className="student-info">Exam: {student.exam_number}</div>
+                                        
+                                        <div className="score-display">
+                                            <div className="score-item">
+                                                <div className="score-label">Midterm</div>
+                                                <div className="score-value">{student.midterm_score}</div>
+                                            </div>
+                                            <div className="score-item">
+                                                <div className="score-label">Final</div>
+                                                <div className="score-value">{student.final_score}</div>
+                                            </div>
+                                            <div className="score-item">
+                                                <div className="score-label">Combined</div>
+                                                <div className="score-value">{parseFloat(student.combined_score).toFixed(1)}</div>
+                                            </div>
+                                        </div>
+
+                                        <div className={`grade-badge grade-${student.grade}`}>
+                                            Grade: {student.grade}
+                                        </div>
+
+                                        <div className="qr-code">
+                                            <img 
+                                                src={getQRCodeURL(student, 'exam')} 
+                                                alt={`QR Code for ${student.exam_number}`}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function StudentPage({ searchQuery, setSearchQuery, onSearch, selectedStudent, scoreType, setScoreType, getCurrentScore, getQRCodeURL, loading }) {
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter') {
+                    onSearch();
+                }
+            };
+
+            return (
+                <div className="panel">
+                    <div className="search-section">
+                        <h2>🔍 Raadi Natiijadaada</h2>
+                        <p className="info-text">Geli ID number ama exam number si aad u aragto natiijada</p>
+                        <input
+                            type="text"
+                            className="search-input"
+                            placeholder="Geli ID number ama exam number (ama QR text)..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            disabled={loading}
+                        />
+                        <button className="btn" onClick={onSearch} disabled={loading}>
+                            🔍 Raadi
+                        </button>
+                    </div>
+
+                    {selectedStudent && (
+                        <div className="result-display">
+                            <img 
+                                src={selectedStudent.photo_url} 
+                                alt={selectedStudent.student_name}
+                                className="result-photo"
+                                onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/150?text=Student';
+                                }}
+                            />
+                            <h2>{selectedStudent.student_name}</h2>
+                            <div style={{ margin: '15px 0' }}>
+                                <div className="student-info">
+                                    <strong>ID Number:</strong> {selectedStudent.id_number}
+                                </div>
+                                <div className="student-info">
+                                    <strong>Exam Number:</strong> {selectedStudent.exam_number}
+                                </div>
+                            </div>
+
+                            <div className="score-selector">
+                                <select value={scoreType} onChange={(e) => setScoreType(e.target.value)}>
+                                    <option value="midterm">Midterm (Nisfi)</option>
+                                    <option value="final">Final (Nihayo)</option>
+                                    <option value="combined">Combined (Isku-jir)</option>
+                                </select>
+                            </div>
+
+                            {(() => {
+                                const current = getCurrentScore(selectedStudent);
+                                return (
+                                    <div>
+                                        <div style={{ fontSize: '24px', margin: '20px 0' }}>
+                                            <strong>{current.label}:</strong> {current.score}
+                                        </div>
+                                        <div className={`grade-badge grade-${current.grade}`}>
+                                            Grade: {current.grade}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            <div style={{ marginTop: '30px' }}>
+                                <h3>QR Code-gaaga</h3>
+                                <div className="qr-code">
+                                    <img 
+                                        src={getQRCodeURL(selectedStudent, 'exam')} 
+                                        alt={`QR Code for ${selectedStudent.exam_number}`}
+                                    />
+                                </div>
+                                <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
+                                    QR code-gani wuxuu xambaarsan yahay exam number-kaaga
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {!selectedStudent && !loading && (
+                        <div className="empty-state">
+                            <div className="empty-state-icon">🎓</div>
+                            <p>Geli ID number ama exam number si aad u aragto natiijadaada</p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
+

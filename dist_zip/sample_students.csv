@@ -1,0 +1,7 @@
+id_number,exam_number,student_name,photo_url,midterm_score,final_score
+12345,EX2025-001,Ahmed Ali,https://via.placeholder.com/150?text=Ahmed,85,90
+23456,EX2025-002,Fatima Mohamed,https://via.placeholder.com/150?text=Fatima,78,82
+34567,EX2025-003,Omar Hassan,https://via.placeholder.com/150?text=Omar,65,70
+45678,EX2025-004,Khadija Ibrahim,https://via.placeholder.com/150?text=Khadija,92,95
+56789,EX2025-005,Mohamed Abdullahi,https://via.placeholder.com/150?text=Mohamed,55,60
+
